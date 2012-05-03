@@ -28,12 +28,26 @@
 
 ** Some typical concepts:
 
+*** Class
+
+*** Object
+
 *** Encapsulation
 
 *** Inheritance
 
 *** Polymorphism
 
+
+** Class
+
+    + Data type that deﬁnes the structure (attributes) and behaviour (methods)
+      of an object.
+
+** Object
+
+    + Concrete instance of a class, that is, a particular exemplar which has
+      certain values for its attributes and thus behaves according to them.
 
 ** Encapsulation
 
@@ -54,64 +68,58 @@
 
 *** Object system that allows us writing OO programs in the C programming language.
 
-*** Some features:
 
-    + Types System
+** GObject: Some features
 
-    + Inheritance
+*** Types System
 
-    + Polymorphism
+*** Inheritance
 
-    + Properties
+*** Polymorphism
 
-    + Signals system
+*** Properties
 
-    + Interfaces
+*** Signals system
 
-** Objects and Classes
-
-*** Class
-
-    + Data type that deﬁnes the structure (attributes) and behaviour (methods)
-      of an object.
-
-*** Object
-
-    + Concrete instance of a class, that is, a particular exemplar which has
-      certain values for its attributes and thus behaves according to them.
+*** Interfaces
 
 
-* Implementation
+* The header
 
 ** Defining classes:  The header file
 
 *** A typical header file contains the following definitions:
 
-    + Type Macros
+** Type Macros
     
-       - Most of them are expected to be present in any gobject based class.
+   + Most of them are expected to be present in any GObject based class.
 
-    + Object and class structures
+** Object structure
     
-       - The object structure it’s used to store the instance attributes of an
-         object. A new structure will be created for every new instance.
+   + The object structure it’s used to store the instance attributes of an
+     object. 
 
-       - The class structure, however, is unique and shared by all instance of a
-         class. It’s used to store static attributes, virtual methods and
-         signal.
+   + A new structure will be created for every new instance.
 
-    + Public methods prototypes
+** Class structure
 
-       - The class interface, that is, the prototypes of all public methods
-         which allow to be invoked from other files or modules.
+   + The class structure is unique and shared by all instance of a class.
+
+   + It’s used to store static attributes, virtual methods and signal.
+
+** Public methods prototypes
+
+   + The class interface, that is, the prototypes of all public methods
+     which allow to be invoked from other files or modules.
+
+
+* The code
 
 ** Defining classes: The code file
 
 *** The code file provides an implementation for all (private and public) methods of the class
 
-** Defining classes: The main functions
-
-*** The get\_type() method
+** The get\_type() method
 
     + It’s required for every gobject based class. 
 
@@ -121,34 +129,32 @@
     + There are macros in glib that help us to implement get\_type() methods
       like G\_DEFINE\_TYPE
 
-*** The init() method
+** The init() method
 
     + This method is called when a new instance is created to initialize the
       object structure (attributes). 
 
     + Note that the object structure is already initialized to 0.
 
-*** The class\_init() method 
+** The class\_init() method 
 
     + This method is called the first time a new instance is created to
       initialize the class structure that will be shared by all object
       instances of the class.
 
-** Defining classes: The code file (II)
-
-*** g\_object\_new()
+** g\_object\_new()
 
     + The function to create a new instance of an object type. 
 
     + It returns a pointer to the newly created object.
 
-*** g\_object\_unref()
+** g\_object\_unref()
 
     + Decrements the reference counter of the object. 
     
     + When it reaches 0 the object will be freed.
 
-*** g\_return macros
+** g\_return macros
 
     + Generally used to protect public methods from possible invalid data
       passed by the user. 
@@ -163,74 +169,101 @@
 
 *** Several ways to make object attributes private 
 
-    + Private indirection member
+** Private indirection member (I)
     
-      - Using a public pointer (in the instance structure) to an structure
-        defined in the code file. 
-      - We can associate such an structure to a class by calling
-        g\_type\_class\_add\_private() so that it will be automatically
-        allocated for every new instance during the object creation.
+   + Using a public pointer (in the instance structure) to an structure
+     defined in the code file.
 
-      - The private structure can be retrieved later from an instance by using
-        the macro G\_TYPE\_INSTANCE\_GET\_PRIVATE.
+** Private indirection member (II)
 
-    + Define the object structure in the code file
+   + We can associate such an structure to a class by calling
+     g\_type\_class\_add\_private() so that it will be automatically allocated
+     for every new instance during the object creation.
+
+** Private indirection member (III)
+
+   + The private structure can be retrieved later from an instance by using
+     the macro G\_TYPE\_INSTANCE\_GET\_PRIVATE.
+
+** Private indirection member (IV)
+
+   + Define the object structure in the code file.
     
-      - This makes the whole instance structure private and therefore, it will
-        be impossible to inherit from such a class.
+   + This makes the whole instance structure private and therefore, it will be
+     impossible to inherit from such a class.
 
-      - It’s only recommended when you are completely sure you are not going to
-        inherit from it.
+   + It’s only recommended when you are completely sure you are not going to
+     inherit from it.
 
-** Private attributes (II)
+** Use a private header file (-private.h)
 
-   + Use a private header file (-private.h)
+   + This header file is considered private and contains the instance
+     structure definition.
 
-     - This header file is considered private and contains the instance
-       structure definition. 
+   + It should be only included from the object code file.
 
-     - It should be only included from the object code file.
+   + It can be also used to implement protected attributes.
 
-     - It can be also used to implement protected attributes.
+** A doc comment in the structure
 
-   + A doc comment in the structure
-
-     - This is the simplest way, although it relays on the users not to use
-       such an attributes. 
+   + This is the simplest way, although it relays on the users not to use such
+     an attributes.
    
-     - Comments like /*< private >*/ are commonly used.
+   + Comments like /*< private >*/ are commonly used.
 
-** Inheritance
+** Inheritance (I)
 
    + Parent’s instance structure should be included into the child instance
-     structure. And the same with the class structure. 
+     structure. 
 
-     - This way both structure and behaviour are inherited.
+   + And the same with the class structure. 
+
+   + This way both structure and behaviour are inherited.
+
+** Inheritance (II)
 
    + We also have to notify the glib types system about the inheritance
      relationship when registering the types.
 
+** Inheritance (III)
+
    + Virtual methods defined in the class structure can be overridden by
      derived classes.
 
+** Inheritance (IV)
+
    + Signals and properties are inherited too.
+
+** Inheritance (V)
 
    + The GET\_CLASS macro can be used to implement polymorphic methods
 
-** Properties
+** Properties (I)
 
 *** Properties are just attributes with some additional features
 
+** Properties (II)
+
 *** Generic access through get/set methods
+
+** Properties (III)
 
 *** Higher access control (Readable, writable, construct only, etc.)
 
+** Properties (IV)
+
 *** Changes notification
 
-** Interfaces
+** Interfaces (I)
 
-*** Non-instantiatable classes types that describe a common interface that other classes will implement.
+   + Non-instantiatable classes types that describe a common interface that
+     other classes will implement.
 
-*** Similar to classes but without an instance structure which makes them non-instantiatable.
+** Interfaces (II)
 
-*** Interfaces must inherit from GTypeInterface.
+   + Similar to classes but without an instance structure which makes them
+     non-instantiatable.
+
+** Interfaces (III)
+
+   + Interfaces must inherit from GTypeInterface.
