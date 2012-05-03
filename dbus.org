@@ -78,6 +78,8 @@ life-cycle tracking, service activation and security policy.
     + Settings Daemon
 
 
+* Concepts
+
 ** Design principles
 
    + Binary protocol designed to be used asynchronously.
