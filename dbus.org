@@ -37,14 +37,17 @@
     + It makes it simple to launch applications and daemons on demand when
       their services are needed 
 
-lifecycle tracking, service activation, security policy
+life-cycle tracking, service activation and security policy.
 
-** Use cases (I)
+* Use cases
+
+** System (I)
 
 *** Communication between the desktop session and the operating system.
 
-    + Operating system would include the kernel and any system daemons or
-      processes.
+*** Operating system would include the kernel and any system daemons or processes.
+
+** System (II)
 
 *** Examples:
 
@@ -56,13 +59,15 @@ lifecycle tracking, service activation, security policy
 
     + PackageKit
 
-** Use cases (II)
+** Session (I)
 
 *** Communication between desktop applications in the same desktop session.
 
 *** To allow integration of the desktop session as a whole.
 
 *** It Addresses issues of process life-cycle.
+
+** Session (II)
 
 *** Examples:
 
@@ -143,13 +148,11 @@ lifecycle tracking, service activation, security policy
 
 *** Por paso de mensajes
 
-
-** Example
+** Example (I)
 
 `dbus-send` permite armar ejemplos “a mano”
 
 #+begin_src shell :results output :exports both
-    !sh
     $ dbus-send --print-reply 
                 --type=method_call
                 --dest=org.gnome.Rhythmbox
@@ -159,7 +162,7 @@ lifecycle tracking, service activation, security policy
     method return sender=:1.40 -> dest=:1.400 reply_serial=2
 #+end_src
 
-** Example
+** Example (II)
 
 #+begin_src shell :results output :exports both
     $ dbus-send --print-reply 
@@ -397,7 +400,6 @@ Ejemplo: `NetworkManager`
 		    <!-- Add more methods/signals if you want -->
 	    </interface>
     </node>
+#+end_src
 
 Lo “traducimos” con: `dbus-binding-tool --prefix=server_object --mode=glib-client interface.xml`
-
-
