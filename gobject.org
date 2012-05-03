@@ -17,7 +17,7 @@
 #+LaTeX_CLASS: beamer
 #+LaTeX_CLASS_OPTIONS: [bigger]
 #+BEAMER_FRAME_LEVEL: 2
-#+BEAMER_HEADER_EXTRA: \usetheme{Pittsburgh}\usecolortheme{default}
+#+BEAMER_HEADER_EXTRA: \usetheme{Hannover}\usecolortheme{default}
 #+COLUMNS: %40ITEM %10BEAMER_env(Env) %9BEAMER_envargs(Env Args) %4BEAMER_col(Col) %10BEAMER_extra(Extra)
 
 * Introduction
@@ -64,10 +64,12 @@
     + The ability to use objects in their different forms depending on our own
       needs. It depends on inheritance.
 
+
+* GObject
+
 ** GObject
 
 *** Object system that allows us writing OO programs in the C programming language.
-
 
 ** GObject: Some features
 
@@ -84,7 +86,7 @@
 *** Interfaces
 
 
-* The header
+* Header
 
 ** Defining classes:  The header file
 
@@ -113,7 +115,7 @@
      which allow to be invoked from other files or modules.
 
 
-* The code
+* Code
 
 ** Defining classes: The code file
 
@@ -163,7 +165,7 @@
       valid, for such cases g\_assert can be used instead.
 
 
-* Fancy stuff
+* Private attributes
 
 ** Private attributes
 
@@ -211,6 +213,8 @@
    
    + Comments like /*< private >*/ are commonly used.
 
+* Inheritance
+
 ** Inheritance (I)
 
    + Parent’s instance structure should be included into the child instance
@@ -238,6 +242,8 @@
 
    + The GET\_CLASS macro can be used to implement polymorphic methods
 
+* Properties
+
 ** Properties (I)
 
 *** Properties are just attributes with some additional features
@@ -253,6 +259,8 @@
 ** Properties (IV)
 
 *** Changes notification
+
+* Interfaces
 
 ** Interfaces (I)
 
