@@ -78,6 +78,19 @@ life-cycle tracking, service activation and security policy.
     + Settings Daemon
 
 
+** Design principles
+
+   + Binary protocol designed to be used asynchronously.
+
+   + Stateful, reliable connections held open over time.
+
+   + The message bus is a single-host daemon.
+
+   + Many implementation and deployment issues are specified rather than left
+     ambiguous/configurable/pluggable.
+
+   + Security features to support the systemwide mode of the message bus. 
+
 ** Comunicación en D-Bus
 
 *** Mensajes asíncronos
