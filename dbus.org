@@ -93,6 +93,34 @@ life-cycle tracking, service activation and security policy.
 
    + Security features to support the systemwide mode of the message bus. 
 
+** Buses (I)
+
+*** There are two major components to D-Bus: 
+    
+    + A point-to-point communication library, used by two processes to
+      exchange messages among themselves.
+
+    + A daemon, the actual bus, a kind of "street" that messages are
+      transported.
+
+*** Multiple buses may be active simultaneously on a single system. 
+
+** Buses (II)
+
+*** A GNOME environment normally runs two kinds of buses: 
+
+    + A _system bus_ for miscellaneous system-wide communication.
+
+    + A _session bus_ used by a single user's ongoing desktop session.
+
+** Buses (III)
+
+*** D-Bus is aware of user identities.
+
+*** D-Buss support flexible authentication mechanisms and access controls.
+
+*** The system bus may see traffic from and to any number of user identities.
+
 ** Comunicación en D-Bus
 
 *** Mensajes asíncronos
