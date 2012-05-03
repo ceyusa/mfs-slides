@@ -1,5 +1,5 @@
 #+TITLE:     D-Bus: The Desktop Bus
-#+AUTHOR:    Daniel F. Moisset
+#+AUTHOR:    
 #+DESCRIPTION:
 #+KEYWORDS:
 #+LANGUAGE:  en
@@ -13,21 +13,21 @@
 #+XSLT:
 #+startup: beamer
 #+LaTeX_CLASS: beamer
-#+LaTeX_CLASS_OPTIONS: [bigger]
+#+LaTeX_CLASS_OPTIONS: [big]
 #+BEAMER_FRAME_LEVEL: 2
 #+BEAMER_HEADER_EXTRA: \usetheme{Hannover}\usecolortheme{default}
 #+COLUMNS: %40ITEM %10BEAMER_env(Env) %9BEAMER_envargs(Env Args) %4BEAMER_col(Col) %10BEAMER_extra(Extra)
 
-* Introduction
+* Definition
 
-** What's D-Bus? (I)
+** What's D-Bus?
 
 *** An interprocess communication (IPC) system
 
     + A wire protocol for exposing a typical object-oriented
       language/framework to other applications
 
-** What's D-Bus? (II)
+** What's D-Bus?
 
 *** A bus daemon that allows applications to find and monitor one another
     
@@ -37,9 +37,21 @@
     + It makes it simple to launch applications and daemons on demand when
       their services are needed 
 
-life-cycle tracking, service activation and security policy.
+** What's D-Bus?
+
+*** Life-cycle tracking.
+
+*** Service activation. 
+
+*** Security policy.
 
 * Use cases
+
+** Use cases
+
+*** System
+
+*** Session
 
 ** System (I)
 
@@ -78,34 +90,43 @@ life-cycle tracking, service activation and security policy.
     + Settings Daemon
 
 
-* Concepts
+* Design principles
 
 ** Design principles
 
    + Binary protocol designed to be used asynchronously.
 
+** Design principles
+
    + Stateful, reliable connections held open over time.
 
+** Design principles
+
    + The message bus is a single-host daemon.
+
+** Design principles
 
    + Many implementation and deployment issues are specified rather than left
      ambiguous/configurable/pluggable.
 
+** Design principles
+
    + Security features to support the systemwide mode of the message bus. 
 
-** Buses (I)
+* Buses
 
-*** There are two major components to D-Bus: 
+** Buses
+
+*** There are two major components: 
     
-    + A point-to-point communication library, used by two processes to
-      exchange messages among themselves.
+    + A library: Used by two processes to exchange messages among themselves.
 
-    + A daemon, the actual bus, a kind of "street" that messages are
+    + A daemon: The actual bus, a kind of *router* where messages are
       transported.
 
 *** Multiple buses may be active simultaneously on a single system. 
 
-** Buses (II)
+** Buses
 
 *** A GNOME environment normally runs two kinds of buses: 
 
@@ -113,336 +134,284 @@ life-cycle tracking, service activation and security policy.
 
     + A _session bus_ used by a single user's ongoing desktop session.
 
-** Buses (III)
+** Buses
 
 *** D-Bus is aware of user identities.
 
-*** D-Buss support flexible authentication mechanisms and access controls.
+*** D-Bus support flexible authentication mechanisms and access controls.
 
 *** The system bus may see traffic from and to any number of user identities.
 
-** Comunicación en D-Bus
+* Addresses
 
-*** Mensajes asíncronos
+** Addresses
 
-    + Mensajes tipados
+Every bus has an address describing how to connect to it. 
 
-*** Señales
+** Addresses
 
-    + Publish/subscribe
-
-*** Sobre un stream
+*** A bus address will typically be:
     
-    + Típicamente UNIX sockets
+    + The file-name of a Unix-domain socket
 
-    + Típicamente cliente/servidor
-
-    + Puede hablarse punto a punto
-
-** Architecture
-
-*** Los mensajes viajan por un *canal*
-
-    + El canal *de sistema* para alertas de sistema
-
-    + El canal *de sesión* para comunicación entre aplicaciones
-
-*** Los canales tienen *direcciones de conexión*
-
-    + No con fundir con la dirección de canal
-
-*** Las conexiones tienen  un *nombre de bus*
-
-    + Nombre estándar (`:01-234`)
-
-    + Nombre legible `org.freedesktop.Notifications`
-
-*** Las conexiones las recibe un *objeto* en el receptor
-
-*** La acción solicitada por el mensaje es el *método*
-
-*** Un mensaje enviado por una aplicación es una *señal*
-
-** Features
-
-*** Pensado para uso asíncrono
-
-*** Agnóstico de escritorio/plataforma
-
-*** Pocas dependencias
-
-*** Independiente de UI
-
-    + Permite implementación por system tools
-
-*** Baja latencia/overhead
-
-*** Codificación binaria
-
-*** API bien establecida
- 
-** Features (2)
-
-*** No transaccional
-
-*** Con estado
-
-*** Basado en conexión
-
-*** Por paso de mensajes
-
-** Example (I)
-
-`dbus-send` permite armar ejemplos “a mano”
-
-#+begin_src shell :results output :exports both
-    $ dbus-send --print-reply 
-                --type=method_call
-                --dest=org.gnome.Rhythmbox
-                /org/gnome/Rhythmbox/Player
-                org.gnome.Rhythmbox.Player.setVolume
-                double:0.5
-    method return sender=:1.40 -> dest=:1.400 reply_serial=2
-#+end_src
-
-** Example (II)
-
-#+begin_src shell :results output :exports both
-    $ dbus-send --print-reply 
-                --type=method_call
-                --dest=org.gnome.Rhythmbox
-                /org/gnome/Rhythmbox/Player
-                org.gnome.Rhythmbox.Player.getVolume
-    method return sender=:1.40 -> dest=:1.401 reply_serial=2 double 0.5
-#+end_src
-
-** Para el programador
-
-*** biblioteca `libdbus` permite que dos aplicaciones hablen el protocolo
-
-*** Hay un daemon de canal basado en `libdbus` que lo habla, y rutea mensajes
-
-*** Hay *wrappers** para distintos frameworks de aplicaciones (Glib, Qt, ...)
-
-** La implementación de referencia es la basada en GLib
-
-** Canales y conexiones
-
-*** Uno normalmente se conecta a alguno de los buses estándar
-
-    + Adentro hay conexiones
-
-    + Los nombres de conexiones son únicos (empiezan con `:`), *unique connection name*
+    + A TCP port where a bus daemon is listening on an IP-domain socket.
     
-    + Una aplicación puede pedir nombres adicionales, *well-known name*
+    + A descriptor for some other low-level communications scheme. 
 
-*** Los nombres no se pueden compartir entre conexiones
+** Addresses
 
-** Del lado de la aplicación
+The details of how to hook up to the bus daemon are hidden from the client by
+the dbus library.
 
-*** Cada aplicacion conectada contiene “objetos”
+* Object Model
 
-    + Objetos C++
+** Object Paths
 
-    + Objetos Python
+   + The idea of an object path is that higher-level bindings can name native
+     object instances, and allow remote applications to refer to them.
 
-    + GObject
+   + The object path looks like a file-system path, for example an object
+     could be named /org/kde/kspread/sheets/3/cells/4/5.
 
-    + QObject
+** Methods and Signals
 
-*** Un objeto es una identidad, no un tipo
+*** Methods 
 
-*** Similar a sistemas de componentes
+    + Are operations that can be invoked on an object, with optional input and
+      output.
 
-*** Cada objeto tiene su dirección, el *object path*
-
-*** Las otras aplicaciones suelen usar un “proxy”
-
-** Object path
-
-*** Similar a una ruta en el file-system
-
-    + No son archivos!
-
-*** Jerarquía idealmente basada en DNS para los niveles externos
-
-*** Jerarquía definida para aplicación para niveles internos
+*** Signals 
+    
+    + Are broadcasts from the object to any interested observers of the
+      object.
 
 ** Interfaces
 
-*** Cada objeto puede tener *varias** interfaces
+*** Each object supports one or more interfaces.
 
-    + Una interfaz describe signatura de varios métodos
+   + Think of an interface as a named group of methods and signals.
 
-    + Los nombres de métodos pueden ser distintos
+   + Interfaces define the type of an object instance.
 
-*** La interfaz tiene un nombre jerárquico:
+** Interfaces
 
-    + ej: `org.gnome.Rhythmbox.Player`
+*** D-Bus identifies interfaces with a simple namespaced string
+    
+    + org.freedesktop.Introspectable
 
-    + Se suele usar la misma jerarquía que el objeto, cuando es una interfaz específica para ese objeto
+** Interfaces
 
-** Mensajes:
+   + Most bindings will map these interface names directly to the appropriate
+     programming language construct.
 
-*** method call
+** Proxies
 
-*** method return
+   + A proxy object is a convenient native object created to represent a
+     remote object in another process.
 
-*** signal
+   + The low-level DBus API involves manually creating a method call message,
+     sending it, then manually receiving and processing the method reply
+     message.
 
-*** error
+** Proxies
 
-** Métodos
+   + Higher-level bindings provide proxies as an alternative. 
 
-*** Nombre simple
+   + Proxies look like a normal native object.
 
-*** Múltiples entradas, multiples salidas
+   + When you invoke a method on the proxy object:
 
-*** Tipadas
+     - The binding converts it into a DBus method call message.
 
-*** Pueden producir errores
+     - Waits for the reply message.
 
-    + Incluyen un nombre y un mensaje
+     - Unpacks the return value.
+   
+     - Returns it from the native method.
 
-*** Puede usarse de forma asíncrona
+* Bus names
 
-*** Se garantiza entrega secuencial de las llamadas
+** Bus names
 
-*** Pero las respuestas pueden llegar fuera de orden!
+   + When each application connects to the bus daemon, the daemon immediately
+     assigns it a name, called the unique connection name.
 
-*** El proxy/binding nomralmente se encarga del marshalling
+   + A unique name begins with a ':' (colon) character. 
 
-** Llamada a métodos, por dentro
+   + These names are never reused during the lifetime of the bus daemon 
 
-*** La aplicación llama al proxy, que genera un mensaje
+     - That is, you know a given name will always refer to the same
+       application.
 
-    + O la aplicación genera un mensaje “a mano”
+** Bus names
 
-*** El mensaje contiene una dirección de conexión, path, interfaz, método, argumentos
+*** An example of a unique name might be :34-907. 
 
-*** El mensaje es enviado al daemon de canal
+*** The numbers after the colon have no meaning other than their uniqueness.
 
-*** El daemon mira la dirección de conexión. Si hay un proceso dueño de ese
-    nombre, se le envía el mensaje. Sino, el daemon genera un mensaje de error
-    y lo devuelve.
+** Bus names
 
-*** El receptor desempaqueta el mensaje. El mensaje uede convertirse
-    directamente o transformarse en una llamada a función de un objeto nativo,
-    y una conversión del resultado
+   + When a name is mapped to a particular application's connection, that
+     application is said to *own* that name.
 
-*** El demonio de bus recibe la respuesta y la devuelve a su origen
+   + Applications may ask to own additional *well-known names*. 
 
-*** El proxy en el origen transforma la respuesta en un valor de retorno o excepción.
+   + You could think of the unique names as IP addresses, and the well-known
+     names as domain names.
 
-** Señales
+** Bus names (example)
 
-*** Nombre simple
+   + You could write a specification to define a name called
+     com.mycompany.TextEditor.
 
-*** Multiples parámetros
+   + An application should have an object at the path
+     /com/mycompany/TextFileManager 
 
-*** Sin valores de retorno
+   + The appplication would support the interface org.freedesktop.FileHandler.
 
-*** Sin destinatario explícito
+** Bus names
 
-*** El receptor registra “matchers“
+*** Names are used to track life-cycle. 
 
-** Matchers
+   + When an application exits (or crashes), its connection to the message bus
+     will be closed by the operating system kernel.
 
-*** Describen los mensajes que se reciben
+   + The message bus then sends out notification messages telling remaining
+     applications that the application's names have lost their owner.
 
-    + Basados en interfaces, paths, métodos
+   + By tracking these notifications, your application can reliably monitor
+     the lifetime of other applications.
 
-*** Esto sirve para:
+** Bus names
 
-    + Las aplicaciones se enfocan en manejar lo que les interesa
+*** Bus names can also be used to coordinate single-instance applications.
 
-    + Poder rutear mensajes eficientemente
+* Example
 
-    + Evitar degradación de performance
- 
-** Servicios   
-
-*** Una aplicación puede ser “dueña” de una dirección
-
-*** Se puede definir una activación
- 
-Esto permite crear instancias nuevas la primera vez, y reusar las siguientes. 
-
-#+begin_src ini :results output :exports both
-    [D-BUS Service]
-    Names=com.bigmoneybank.Deposits;com.bigmoneybank.Withdrawals
-    Exec=/usr/local/bin/bankcounter
+** Controlling Spotify
+#+begin_src shell :results output :exports both
+$ gdbus call --session \
+--dest org.mpris.MediaPlayer2.spotify \
+--object-path /org/mpris/MediaPlayer2 \
+--method org.mpris.MediaPlayer2.Player.PlayPause
 #+end_src
 
-** El bus de sistema
+** Desktop Notifications
 
-*** Incluye seguridad
-
-    + Usuarios de sistema
-
-    + Autenticación por UNIX sockets
-
-    + Autorización por archivos de configuración
- 
-** Setup
-
-*** Se pueden lanzar canales con `dbus-launch`
-
-    + Que por dentro corre `dbus-daemon`
-
-*** Los dos toman `--config-file ...`
-
-*** Los dos canales estándar usan:
-
-    + `/etc/dbus-1/system.conf`
-
-    + `/etc/dbus-1/session.conf`
-
-** Seguridad
-
-*** Del lado del servidor
-
-*** Para el que hace una aplicación de sistema, conviene hacer un archivo de
-    configuración
-
-Ejemplo: `NetworkManager`
-
-** Tipos en dbus
-
-*** Tipos básicos:
-
-    + Byte, Boolean
-
-    + Enteros de 16, 32, 64 bits
-
-    + double
-
-    + string
-
-    + object path
-
-*** Arrays
-
-*** Dictionary entry
-
-*** Variant
- 
-** Ejemplo: dbus-glib.c
-
-** Definiendo interfaces
-
-#+begin_src xml :results output :exports both
-    <?xml version="1.0" encoding="UTF-8"?>
-    <node name="/org/gnome/ServiceName">
-	    <interface name="org.gnome.ServiceName">
-		    <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="server"/>
-		    <method name="EchoString">
-			    <arg type="s" name="original" direction="in" />
-			    <arg type="s" name="echo" direction="out" />
-		    </method>
-		    <!-- Add more methods/signals if you want -->
-	    </interface>
-    </node>
+#+begin_src shell :results output :exports bot
+$ gdbus call --session \
+   --dest org.freedesktop.Notifications \
+   --object-path /org/freedesktop/Notifications \
+   --method org.freedesktop.Notifications.Notify \
+   my_app_name \
+   42 \
+   gtk-dialog-info \
+   "The Summary" \
+   "Here's the body of the notification" \
+   [] \
+   {} \
+   5000
 #+end_src
 
-Lo “traducimos” con: `dbus-binding-tool --prefix=server_object --mode=glib-client interface.xml`
+* Messages
+
+** Messages
+
+*** D-Bus works by sending messages between processes.
+
+** Messages
+
+*** There are 4 message types:
+
+    + *Method call messages* ask to invoke a method on an object.
+
+    + *Method return messages* return the results of invoking a method.
+
+    + *Error messages* return an exception caused by invoking a method.
+
+    + *Signal messages* are notifications that a given signal has been
+      emitted.
+
+** Messages
+
+*** A method call maps very simply to messages.
+
+** Messages
+
+*** Each message has a _header_ and a _body_
+
+   + You can think of the header as the routing information for the
+     message, and the body as the payload. 
+
+   + Header fields might include the sender bus name, destination bus name,
+     method or signal name, and so forth. 
+
+* Calling a method
+
+** Calling a method
+
+*** A method call in DBus consists of two messages:
+
+    + A method call message sent from process A to process B.
+
+      - The call message will contain any arguments to the method.
+    
+    + A matching method reply message sent from process B to process A. 
+
+      - The reply message may indicate an error, or may contain data returned
+        by the method.
+
+** Calling a method
+
+    + The application constructs a method call message itself.
+
+    + The method call message is sent to the bus daemon.
+
+    + If a process owns that name, the bus daemon forwards the method call to
+      that process.
+
+    + The receiving process unpacks the method call message. 
+
+    + The receiving process may immediately run the method and send a method
+      reply message to the bus daemon. 
+
+    + The bus daemon receives the method reply message and sends it to the
+      process that made the method call.
+
+    + The process that made the method call looks at the method reply and uses
+      the return values.
+
+** Calling a method
+
+*** The bus daemon never reorders messages.
+
+* Emitting a Signal
+
+** Emitting a Signal
+
+   + A signal is a unidirectional broadcast. 
+
+   * The signal may contain arguments (a data payload), but it never has a
+     "return value."
+
+** Emitting a Signal
+
+   + The emitter (aka sender) of a signal has no knowledge of the signal
+     recipients. 
+
+   + Recipients register with the bus daemon to receive signals based on
+     "match rules"
+
+     - Match rules would typically include the sender and the signal name.
+
+** Emitting a Signal
+
+   + A signal message is created and sent to the bus daemon.
+
+   + Any process on the message bus can register "match rules" indicating
+     which signals it is interested in.
+
+   + The bus daemon examines the signal and determines which processes are
+     interested in it. It sends the signal message to these processes.
+
+   + Each process receiving the signal decides what to do with it.
