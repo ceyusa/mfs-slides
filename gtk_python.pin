@@ -1,0 +1,263 @@
+#!/usr/bin/env pinpoint
+
+[white]
+[images/regular_bg.png]
+[font=Sans 50px]
+[duration=5.000000]
+
+-- [black]
+<b>Introduction to GTK+</b>
+<b>with Python and GObject Introspection</b>
+
+Joaquim Rocha, Igalia
+Master in Free Software - 4 May, 2012
+
+--
+<b>Old way:</b>
+
+A lot of replicated work to provide bindings
+to different languages
+
+Leads to a lot of work and outdated bindings
+
+--
+<b>How GI Works:</b>
+
+Annotations are written in the code documentation
+
+XML (gir) and compiled API metadata (typelib) are
+generated from the annotations
+
+GI uses this metadata at runtime or compile time
+
+--
+<b>This means:</b>
+
+Only bindings for the GI glue libraries are needed:
+PyGObject
+
+--
+<b>GObject Introspection = Very Cheap Bindings</b>
+
+--
+<b>GTK+</b>
+
+--
+<b>GTK+</b> or "The GIMP Toolkit"
+
+* Event driven toolkit
+* The <b>main loop</b> processes the events
+* Widgets receive those events and emit signals
+* A signal can be connected to a callback
+
+--
+<b>GTK+ from Python</b>
+
+  from gi.repository import Gtk
+
+--
+<b>Hello World</b>
+
+  from gi.repository import Gtk
+
+  if __name__ == '__main__':
+      window = Gtk.Window()
+      window.connect('delete-event', Gtk.main_quit)
+      window.show_all()
+      Gtk.main()
+
+--
+<b>Connecting signals</b>
+
+This connects the delete-event (emitted when the window is closed)
+with GTK's function main_quit (quits the main loop)
+
+      window.connect('delete-event', Gtk.main_quit)
+
+--
+We can pass arguments to callbacks when connecting the signals:
+
+  # A callback created by us
+  def quit_with_message(widget, event, *args):
+      print args
+      Gtk.main_quit()
+
+  if __name__ == '__main__':
+      window = Gtk.Window()
+      window.connect('delete-event',
+                     quit_with_message,
+                     "Good bye!",
+                     "Dear Friend")
+
+--
+<b>Containers</b>
+
+GTK+ uses containers to arrange its widgets in a hierarchy
+
+They allow to pack widgets so that their size <i>may</i> be dynamic
+according to the available space, the other container's contents, etc.
+
+Examples of containers are boxes, tables, windows, ...
+
+--
+<b>Gtk.Box</b>
+
+Supports several children and displays them horizontal or
+vertically
+
+Can dictate whether all widgets get the same size (<b>homogeneous</b>)
+and a gap between them (<b>spacing</b>).
+
+--
+<b>Packing Widgets</b>
+
+Two types of packing <b>pack_start</b> and <b>pack_end</b> and take
+the following arguments besides the widget to be packed:
+
+<b>expand</b>: whether the widget should occupy all the space it can
+
+<b>fill</b>: whether the widget should fill the space expanded by it
+(only works if <b>expand</b> is true)
+
+<b>padding</b>: extra spacing between the widget and its siblings or
+the box's edges
+
+--
+<b>Packing Widgets</b>
+
+Packed widgets always fill their width for vertical boxes and their
+height for horizontal boxes
+
+--
+    label = Gtk.Label('Hello World!')
+    button = Gtk.Button('Send')
+
+    box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+    box.pack_start(label, True, True, 0)
+    box.pack_end(button, False, False, 6)
+
+    # Window is also a container and we
+    # add the box to it for showing everything
+    window.add(box)
+
+--
+<b>GTK+ Tree and List Views</b>
+
+Follows an MVC approach
+
+<b>Gtk.TreeModel</b> (interface): holds the data
+<b>Gtk.TreeView</b> (widget): displays the data
+
+--
+<b>GTK+ list with two columns</b>
+
+Use a Gtk.ListStore (implements Gtk.TreeModel), e.g.:
+
+      # Movies: id: int, title: str, director: str
+      store = Gtk.ListStore(int, str, str)
+      store.append([0, 'Hugo', 'Martin Scorsese'])
+      store.append([1, 'Revolver', 'Guy Ritchie'])
+      store.append([2, 'In Bruges', 'Martin McDonagh'])
+
+--
+<b>GTK+ list with two columns</b>
+
+      view = Gtk.TreeView(store)
+
+      renderer = Gtk.CellRendererText()
+      column = Gtk.TreeViewColumn('Movie', renderer, text=1)
+      view.append_column(column)
+
+      renderer = Gtk.CellRendererText()
+      column = Gtk.TreeViewColumn('Director', renderer, text=2)
+      view.append_column(column)
+
+      window.add(view)
+
+--
+<b>Designing the UI visually</b>
+
+The Glade application lets you build a UI visually, save it to
+an XML file and load it in the code with <b>Gtk.Builder</b>
+
+      builder = Gtk.Builder()
+      builder.add_from_file('traktor.ui')
+
+      window = builder.get_object('window1')
+      window.show_all()
+
+--
+<b>Using the Gtk.UIManager</b>
+
+Provides an easy way to describe menus and toolbars in XML and
+tie them with <b>Gtk.Action</b>s.
+
+A Gtk.Action allows an action to be shared among different widgets
+(like a "New File" that can be used from a menu or a button) and
+abstracts its logic from them (we do not need to listen to
+the button/menu's signals)
+
+-- [no-markup]
+XML example for UIManager:
+
+UI = '''
+<ui>
+    <menubar name="MenuBar">
+        <menu action="FileMenu">
+            <menuitem action="NewFile" />
+            <separator />
+            <menuitem action="Quit" />
+        </menu>
+    </menubar>
+    <toolbar name='ToolBar'>
+        <toolitem action='NewFile' />
+    </toolbar>
+</ui>
+'''
+
+--
+<b>Load the XML</b>
+
+    ui_manager = Gtk.UIManager()
+    ui_manager.add_ui_from_string(UI)
+
+--
+<b>Add the UIManager's accelerators to the window</b>
+
+    window = Gtk.Window()
+    accel_group = ui_manager.get_accel_group()
+    window.add_accel_group(accel_group)
+
+--
+Create the actions and insert their
+action group in the UIManager:
+
+    action_group = Gtk.ActionGroup('Actions')
+    action_group.add_actions([
+       ('FileMenu', None, 'File', '<alt>f', None, None),
+       ('NewFile', Gtk.STOCK_NEW, 'New File', '<ctrl>n', 'Creates a new file',
+        on_new_file),
+       ('Quit', Gtk.STOCK_QUIT, 'Quit', '<ctrl>q', 'Quits the application',
+        on_quit)])
+
+    ui_manager.insert_action_group(action_group)
+
+--
+<b>Add the menu and tool bars to the window</b>
+
+    box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+
+    menu_bar = ui_manager.get_widget('/MenuBar')
+    box.pack_start(menu_bar, False, False, 0)
+
+    tool_bar = ui_manager.get_widget('/ToolBar')
+    box.pack_start(tool_bar, False, False, 0)
+
+    window.add(box)
+    window.show_all()
+
+--
+<b>Also check out:</b>
+http://python-gtk-3-tutorial.readthedocs.org/
+http://developer.gnome.org/gi/unstable/gi-overview.html
+https://live.gnome.org/PyGObject
