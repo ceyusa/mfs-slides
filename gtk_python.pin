@@ -66,6 +66,8 @@ PyGObject
       window.show_all()
       Gtk.main()
 
+-- [images/hello_world.png] [unscaled]
+
 --
 <b>Connecting signals</b>
 
@@ -140,6 +142,8 @@ height for horizontal boxes
     # add the box to it for showing everything
     window.add(box)
 
+-- [images/traktor_boxes.png] [unscaled]
+
 --
 <b>GTK+ Tree and List Views</b>
 
@@ -174,6 +178,8 @@ Use a Gtk.ListStore (implements Gtk.TreeModel), e.g.:
 
       window.add(view)
 
+-- [images/traktor_treeview.png] [unscaled]
+
 --
 <b>Designing the UI visually</b>
 
@@ -185,6 +191,10 @@ an XML file and load it in the code with <b>Gtk.Builder</b>
 
       window = builder.get_object('window1')
       window.show_all()
+
+-- [images/traktor_glade.png] [unscaled]
+
+-- [images/traktor_ui_builder.png] [unscaled]
 
 --
 <b>Using the Gtk.UIManager</b>
@@ -255,6 +265,8 @@ action group in the UIManager:
 
     window.add(box)
     window.show_all()
+
+-- [images/traktor_ui_manager.png] [unscaled]
 
 --
 <b>Also check out:</b>
